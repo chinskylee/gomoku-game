@@ -4,6 +4,7 @@
 
 ## 🌐 在线体验
 - **GitHub Pages**: [https://chinskylee.github.io/gomoku-game/](https://chinskylee.github.io/gomoku-game/)
+- **Gomoku Website**: [https://lyralex.qzz.io](https://lyralex.qzz.io)
 - **直接打开**: 下载 `index.html` 文件，用浏览器打开即可运行
 
 ## ✨ 功能特性
@@ -22,7 +23,7 @@
 ## 🚀 快速开始
 
 ### 方法一：在线游玩
-直接访问 [GitHub Pages](https://chinskylee.github.io/gomoku-game/)
+直接访问 [GitHub Pages](https://chinskylee.github.io/gomoku-game/) 或者 [Gomoku](https://lyralex.qzz.io)
 
 ### 方法二：本地运行
 1. 下载 `index.html` 文件
