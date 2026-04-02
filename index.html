@@ -1982,6 +1982,8 @@
         // ==================== Game Controller ====================
         class GameController {
             constructor() {
+                this.resizeTimer = null;
+
                 this.state = new GameState();
                 this.boardManager = new BoardManager(this.state);
                 this.aiEngine = new AIEngine(this.state, this.boardManager);
@@ -2234,6 +2236,11 @@
                     this.resizeTimer = setTimeout(() => {
                         this.ui.renderBoard();
                     }, 250);
+                });
+
+                // 页面刷新/关闭时清除统计数据
+                window.addEventListener('beforeunload', () => {
+                    this.state.clearStats();
                 });
 
             }
