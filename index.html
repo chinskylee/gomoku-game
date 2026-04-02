@@ -13,7 +13,6 @@
 
         body {
             margin: 0;
-            padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             height: 100vh;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -790,11 +789,6 @@
                 font-size: 1.5em;
             }
 
-            .result-buttons {
-                flex-direction: column;
-                gap: 10px;
-            }
-
             .result-btn {
                 padding: 12px 30px;
                 font-size: 1em;
@@ -951,7 +945,7 @@
             }
         }
 
-            /* 横屏模式 - 按钮在左侧 */
+        /* 横屏模式 - 按钮在左侧 */
         @media (orientation: landscape) {
             body {
                 overflow-x: auto;
@@ -970,81 +964,50 @@
             }
 
             /* 重置浮动按钮样式，确保横屏下正确显示 */
-            .floating-new-game-btn {
-                position: fixed !important;
-                left: 60px !important;
-                top: 50% !important;
-                transform: translateY(-50%) !important;
-                margin-top: 0 !important;
-                padding: 12px 20px;
-                font-size: 0.9em;
-                z-index: 10000 !important;
-                pointer-events: none !important;
-            }
-
-            .floating-new-game-btn:hover {
-                transform: translateY(-50%) scale(1.05) !important;
-            }
-
-            .floating-new-game-btn.active {
-                opacity: 1 !important;
-                pointer-events: auto !important;
-                transform: translateY(-50%) scale(1.05) !important;
-            }
-
+            .floating-new-game-btn,
             .floating-undo-btn {
-                position: fixed !important;
-                left: 60px !important;
-                top: 50% !important;
-                transform: translateY(-50%) !important;
-                margin-top: 0 !important;
+                position: fixed;
+                left: 60px;
+                top: 50%;
+                transform: translateY(-50%);
+                margin-top: 0;
                 padding: 12px 20px;
                 font-size: 0.9em;
-                z-index: 10000 !important;
-                pointer-events: none !important;
+                z-index: 10000;
+                pointer-events: none;
             }
 
+            .floating-new-game-btn:hover,
             .floating-undo-btn:hover {
-                transform: translateY(-50%) scale(1.05) !important;
+                transform: translateY(-50%) scale(1.05);
             }
 
+            .floating-new-game-btn.active,
             .floating-undo-btn.active {
-                opacity: 1 !important;
-                pointer-events: auto !important;
-                transform: translateY(-50%) scale(1.05) !important;
+                opacity: 1;
+                pointer-events: auto;
+                transform: translateY(-50%) scale(1.05);
             }
 
             /* 横屏移动端适配 */
             @media (max-width: 768px) {
-                .floating-new-game-btn {
-                    left: 30px !important;
-                    padding: 10px 18px;
-                    font-size: 0.85em;
-                    z-index: 10000 !important;
-                }
-
+                .floating-new-game-btn,
                 .floating-undo-btn {
-                    left: 30px !important;
+                    left: 30px;
                     padding: 10px 18px;
                     font-size: 0.85em;
-                    z-index: 10000 !important;
+                    z-index: 10000;
                 }
             }
 
             /* 横屏小屏幕手机 */
             @media (max-width: 400px) {
-                .floating-new-game-btn {
-                    left: 10px !important;
-                    padding: 8px 15px;
-                    font-size: 0.8em;
-                    z-index: 10000 !important;
-                }
-
+                .floating-new-game-btn,
                 .floating-undo-btn {
-                    left: 10px !important;
+                    left: 10px;
                     padding: 8px 15px;
                     font-size: 0.8em;
-                    z-index: 10000 !important;
+                    z-index: 10000;
                 }
             }
         }
@@ -1067,6 +1030,7 @@
 
     <div class="settings-icon" id="settingsIcon" title="设置" data-i18n-title="settings.title">
         <svg viewBox="0 0 24 24">
+            <title data-i18n="settings.title">设置</title>
             <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
         </svg>
     </div>
@@ -1105,9 +1069,9 @@
         <div class="panel-section">
             <div class="panel-title" data-i18n="settings.gameControl">游戏控制</div>
             <div class="control-group">
-                <button id="newGame" data-i18n="settings.newGame">开始新游戏</button>
-                <button id="undoBtn" data-i18n="settings.undo">悔棋</button>
-                <button id="resetBtn" data-i18n="settings.reset">重置游戏</button>
+                <button type="button" id="newGame" data-i18n="settings.newGame">开始新游戏</button>
+                <button type="button" id="undoBtn" data-i18n="settings.undo">悔棋</button>
+                <button type="button" id="resetBtn" data-i18n="settings.reset">重置游戏</button>
             </div>
         </div>
 
@@ -1165,18 +1129,18 @@
             <div class="board" id="board"></div>
         </div>
         <div class="floating-buttons-container">
-            <button class="floating-new-game-btn" id="floatingNewGameBtn" data-i18n="game.newGame">再来一局</button>
-            <button class="floating-undo-btn" id="floatingUndoBtn" data-i18n="settings.undo">悔棋</button>
+            <button type="button" class="floating-new-game-btn" id="floatingNewGameBtn" data-i18n="game.newGame">再来一局</button>
+            <button type="button" class="floating-undo-btn" id="floatingUndoBtn" data-i18n="settings.undo">悔棋</button>
         </div>
     </div>
 
     <div class="result-overlay" id="resultOverlay">
         <div class="result-message">
             <div class="result-icon" id="resultIcon">🎉</div>
-            <div class="result-text" id="resultText" data-i18n="game.gameOver">游戏结束</div>
+            <div class="result-text" id="resultText">游戏结束</div>
             <div class="result-buttons">
-                <button class="result-btn" id="viewBoardBtn" data-i18n="game.viewBoard">查看棋局</button>
-                <button class="result-btn" id="resultBtn" data-i18n="game.newGame">再来一局</button>
+                <button type="button" class="result-btn" id="viewBoardBtn" data-i18n="game.viewBoard">查看棋局</button>
+                <button type="button" class="result-btn" id="resultBtn" data-i18n="game.newGame">再来一局</button>
             </div>
         </div>
     </div>
