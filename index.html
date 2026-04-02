@@ -1485,7 +1485,6 @@
 
             evaluatePosition(row, col, player) {
                 let score = 0;
-                const opponent = player === this.state.aiColor ? this.state.playerColor : this.state.aiColor;
 
                 // 临时放置棋子
                 this.state.board[row][col] = player;
@@ -1700,7 +1699,7 @@
                 const endX = end.col * cellSize + cellSize/2;
                 const endY = end.row * cellSize + cellSize/2;
                 
-                const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+                const length = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
                 const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
                 
                 line.style.width = `${length}px`;
@@ -2057,17 +2056,27 @@
                 const settingsPanel = document.getElementById('settingsPanel');
                 const overlay = document.getElementById('overlay');
 
+                const isExcludedTarget = (target, includeSettingsIcon = false) => {
+                    if (!target) return false;
+
+                    if (includeSettingsIcon && target.closest('.settings-icon')) {
+                        return true;
+                    }
+
+                    return target.closest('.language-toggle-btn') ||
+                        target.closest('.floating-new-game-btn') ||
+                        target.closest('.floating-undo-btn') ||
+                        target.closest('.board') ||
+                        target.closest('.board-container') ||
+                        target.closest('.settings-panel') ||
+                        target.closest('.result-overlay') ||
+                        target.closest('.result-message');
+                };
+
                 // 切换设置面板（带动画）
                 const toggleSettings = (e) => {
                     // 如果点击的是以下区域，不触发设置面板切换（仅用于点击事件）
-                    if (e && e.target && (e.target.closest('.board') ||
-                        e.target.closest('.board-container') ||
-                        e.target.closest('.language-toggle-btn') ||
-                        e.target.closest('.floating-new-game-btn') ||
-                        e.target.closest('.floating-undo-btn') ||
-                        e.target.closest('.settings-panel') ||
-                        e.target.closest('.result-overlay') ||
-                        e.target.closest('.result-message'))) {
+                    if (e?.target && isExcludedTarget(e.target, false)) {
                         return;
                     }
 
@@ -2126,7 +2135,7 @@
                     settingsPanel.style.transform = `translateX(${clampedDelta - 400}px)`;
                 }, { passive: true });
 
-                settingsPanel.addEventListener('touchend', (e) => {
+                settingsPanel.addEventListener('touchend', () => {
                     if (!isSwiping) return;
                     
                     isSwiping = false;
@@ -2182,15 +2191,7 @@
                     if (settingsPanel.classList.contains('active')) return;
 
                     // 如果点击的是特殊区域，不处理
-                    if (e.target.closest('.settings-icon') ||
-                        e.target.closest('.language-toggle-btn') ||
-                        e.target.closest('.floating-new-game-btn') ||
-                        e.target.closest('.floating-undo-btn') ||
-                        e.target.closest('.board') ||
-                        e.target.closest('.board-container') ||
-                        e.target.closest('.settings-panel') ||
-                        e.target.closest('.result-overlay') ||
-                        e.target.closest('.result-message')) {
+                    if (isExcludedTarget(e.target, true)) {
                         return;
                     }
 
@@ -2207,7 +2208,7 @@
                     swipeCurrentX = touch.clientX;
                 }, { passive: true });
 
-                document.addEventListener('touchend', (e) => {
+                document.addEventListener('touchend', () => {
                     if (!isSwipeOpening) return;
 
                     isSwipeOpening = false;
@@ -2375,7 +2376,6 @@
             },
 
             translateSelectOptions() {
-                const boardSizeSelect = document.getElementById('boardSize');
                 const firstPlayerSelect = document.getElementById('firstPlayer');
 
                 // 翻译先手选择
