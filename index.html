@@ -1228,7 +1228,22 @@
             loadStats() {
                 const saved = localStorage.getItem('gomokuStats');
                 if (saved) {
-                    this.stats = JSON.parse(saved);
+                    try {
+                        const parsed = JSON.parse(saved);
+                        this.stats = {
+                            totalGames: Number.isFinite(parsed?.totalGames) ? parsed.totalGames : 0,
+                            playerWins: Number.isFinite(parsed?.playerWins) ? parsed.playerWins : 0,
+                            aiWins: Number.isFinite(parsed?.aiWins) ? parsed.aiWins : 0,
+                            draws: Number.isFinite(parsed?.draws) ? parsed.draws : 0
+                        };
+                    } catch {
+                        this.stats = {
+                            totalGames: 0,
+                            playerWins: 0,
+                            aiWins: 0,
+                            draws: 0
+                        };
+                    }
                 }
             }
 
@@ -1243,7 +1258,7 @@
             }
 
             undo() {
-                if (this.history.length < 2) return false;
+                if (this.history.length === 0) return false;
 
                 const lastMove = this.history.pop();
                 this.board[lastMove.row][lastMove.col] = EMPTY;
@@ -1251,16 +1266,14 @@
                 if (this.history.length > 0) {
                     const secondLastMove = this.history.pop();
                     this.board[secondLastMove.row][secondLastMove.col] = EMPTY;
-                    this.currentPlayer = secondLastMove.player;
-                    this.isPlayerTurn = (this.currentPlayer === this.playerColor);
-                } else {
-                    // 回到初始状态
-                    this.currentPlayer = BLACK;
-                    this.isPlayerTurn = (this.firstPlayer === 'player');
                 }
+
+                this.currentPlayer = this.history.length % 2 === 0 ? BLACK : WHITE;
+                this.isPlayerTurn = this.currentPlayer === this.playerColor;
 
                 this.gameOver = false;
                 this.winner = null;
+                this.winningLine = null;
                 this.lastMove = this.history.length > 0 ? 
                     { row: this.history[this.history.length - 1].row, col: this.history[this.history.length - 1].col } : 
                     null;
@@ -1566,6 +1579,26 @@
                 this.boardElement = document.getElementById('board');
                 this.statusMessage = document.getElementById('statusMessage');
                 this.historyPanel = document.getElementById('historyPanel');
+                this.aiMoveTimer = null;
+                this.aiMoveToken = 0;
+            }
+
+            cancelPendingAiMove() {
+                if (this.aiMoveTimer !== null) {
+                    clearTimeout(this.aiMoveTimer);
+                    this.aiMoveTimer = null;
+                }
+                this.aiMoveToken += 1;
+            }
+
+            scheduleAiMove(delay = 300) {
+                this.cancelPendingAiMove();
+                const token = this.aiMoveToken;
+                this.aiMoveTimer = setTimeout(() => {
+                    if (token !== this.aiMoveToken) return;
+                    this.aiMoveTimer = null;
+                    this.aiMove();
+                }, delay);
             }
 
             renderBoard() {
@@ -1715,12 +1748,14 @@
                     this.updateStatus();
 
                     // AI走棋
-                    setTimeout(() => this.aiMove(), 300);
+                    this.scheduleAiMove(300);
                 }
             }
 
             aiMove() {
-                if (this.state.gameOver) return;
+                if (this.state.gameOver || this.state.isPlayerTurn || this.state.currentPlayer !== this.state.aiColor) {
+                    return;
+                }
 
                 const move = this.aiEngine.getBestMove();
 
@@ -1780,6 +1815,7 @@
             }
 
             endGame(winner) {
+                this.cancelPendingAiMove();
                 this.state.gameOver = true;
                 this.state.winner = winner;
                 this.state.updateStats(winner);
@@ -1790,48 +1826,43 @@
             }
 
             showResult(winner) {
+                const overlay = document.getElementById('resultOverlay');
+                const icon = document.getElementById('resultIcon');
+                const text = document.getElementById('resultText');
 
-                            const overlay = document.getElementById('resultOverlay');
+                // 隐藏浮动按钮
+                document.getElementById('floatingNewGameBtn').classList.remove('active');
+                document.getElementById('floatingUndoBtn').classList.remove('active');
 
-                            const icon = document.getElementById('resultIcon');
+                if (winner === this.state.playerColor) {
+                    icon.textContent = '🎉';
+                    text.textContent = i18n.get('game.playerWins');
+                } else if (winner === this.state.aiColor) {
+                    icon.textContent = '😔';
+                    text.textContent = i18n.get('game.aiWins');
+                } else {
+                    icon.textContent = '🤝';
+                    text.textContent = i18n.get('game.draw');
+                }
 
-                            const text = document.getElementById('resultText');
+                overlay.classList.add('active');
+            }
 
-            
+            updateResultText() {
+                const text = document.getElementById('resultText');
+                if (!this.state.gameOver) {
+                    text.textContent = i18n.get('game.gameOver');
+                    return;
+                }
 
-                            // 隐藏浮动按钮
-
-                            document.getElementById('floatingNewGameBtn').classList.remove('active');
-
-                            document.getElementById('floatingUndoBtn').classList.remove('active');
-
-            
-
-                            if (winner === this.state.playerColor) {
-
-                                icon.textContent = '🎉';
-
-                                text.textContent = i18n.get('game.playerWins');
-
-                            } else if (winner === this.state.aiColor) {
-
-                                icon.textContent = '😔';
-
-                                text.textContent = i18n.get('game.aiWins');
-
-                            } else {
-
-                                icon.textContent = '🤝';
-
-                                text.textContent = i18n.get('game.draw');
-
-                            }
-
-            
-
-                            overlay.classList.add('active');
-
-                        }
+                if (this.state.winner === this.state.playerColor) {
+                    text.textContent = i18n.get('game.playerWins');
+                } else if (this.state.winner === this.state.aiColor) {
+                    text.textContent = i18n.get('game.aiWins');
+                } else {
+                    text.textContent = i18n.get('game.draw');
+                }
+            }
 
             updateStatus() {
                 if (this.state.gameOver) {
@@ -1879,13 +1910,14 @@
             }
 
             startNewGame() {
-                const size = parseInt(document.getElementById('boardSize').value);
+                this.cancelPendingAiMove();
+
+                const size = parseInt(document.getElementById('boardSize').value, 10);
                 const firstPlayer = document.getElementById('firstPlayer').value;
 
                 this.state.boardSize = size;
                 this.state.firstPlayer = firstPlayer;
 
-                this.state.initBoard(size);
                 this.state.reset();
 
                 this.updateStatsDisplay();
@@ -1911,21 +1943,29 @@
 
                 // 如果AI先手
                 if (firstPlayer === 'ai') {
-                    setTimeout(() => this.aiMove(), 500);
+                    this.scheduleAiMove(500);
                 }
             }
 
             undoMove() {
                 if (this.state.undo()) {
+                    this.cancelPendingAiMove();
+
                     this.renderBoard();
                     this.updateStatus();
                     this.updateHistory();
                     // 悔棋后重新检查是否应该显示悔棋按钮
                     this.checkUndoButton();
+
+                    if (!this.state.gameOver && !this.state.isPlayerTurn) {
+                        this.scheduleAiMove(300);
+                    }
                 }
             }
 
             resetGame() {
+                this.cancelPendingAiMove();
+
                 this.state.reset();
                 this.renderBoard();
                 this.updateStatus();
@@ -1935,7 +1975,7 @@
                 document.getElementById('floatingUndoBtn').classList.remove('active');
 
                 if (this.state.firstPlayer === 'ai') {
-                    setTimeout(() => this.aiMove(), 500);
+                    this.scheduleAiMove(500);
                 }
             }
         }
@@ -1965,7 +2005,7 @@
 
                 // 如果AI先手
                 if (this.state.firstPlayer === 'ai') {
-                    setTimeout(() => this.ui.aiMove(), 500);
+                    this.ui.scheduleAiMove(500);
                 }
 
                 // 绑定事件
@@ -2195,10 +2235,6 @@
                     }, 250);
                 });
 
-                // 页面卸载时清除统计数据
-                window.addEventListener('beforeunload', () => {
-                    this.state.clearStats();
-                });
             }
         }
 
@@ -2313,6 +2349,7 @@
                 if (window.gameUI) {
                     window.gameUI.updateStatus();
                     window.gameUI.updateHistory();
+                    window.gameUI.updateResultText();
                 }
             },
 
